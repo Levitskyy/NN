@@ -95,11 +95,59 @@ float model_cost(Model model, TrainingData data) {
 
         for (size_t j = 0; j < data.output.cols; ++j) {
             float d = MAT_AT(model_output(model), 0, j) - MAT_AT(data.output, i, j);
-            printf("%f    %f\n", MAT_AT(data.output, i, j), MAT_AT(model_output(model), 0, j));
+            //printf("%f    %f\n", MAT_AT(data.output, i, j), MAT_AT(model_output(model), 0, j));
             cost += d * d;
         }
-        printf("--\n");
+        //printf("--\n");
     }
 
-    return cost;
+    return cost / data.input.rows;
+}
+
+void finite_diff(Model model, Model grad, float eps, TrainingData data) {
+    assert(model.size == grad.size);
+
+    float saved;
+
+    float c = model_cost(model, data);
+
+    for (size_t i = 0; i < model.size - 1; ++i) {
+        Layer layer = model.layers[i];
+        Layer gradLayer = grad.layers[i];
+        for (size_t row = 0; row < layer.input_weights.rows; ++row) {
+            for (size_t col = 0; col < layer.input_weights.cols; ++col) {
+                saved = MAT_AT(layer.input_weights, row, col);
+                MAT_AT(layer.input_weights, row, col) += eps;
+                MAT_AT(gradLayer.input_weights, row, col) = (model_cost(model, data) - c) / eps;
+                MAT_AT(layer.input_weights, row, col) = saved;
+            }
+        }
+        for (size_t row = 0; row < layer.input_biases.rows; ++row) {
+            for (size_t col = 0; col < layer.input_biases.cols; ++col) {
+                saved = MAT_AT(layer.input_biases, row, col);
+                MAT_AT(layer.input_biases, row, col) += eps;
+                MAT_AT(gradLayer.input_biases, row, col) = (model_cost(model, data) - c) / eps;
+                MAT_AT(layer.input_biases, row, col) = saved;
+            }
+        }
+    }
+}
+
+void model_learn(Model model, Model grad, float rate) {
+    assert(model.size == grad.size);
+
+    for (size_t i = 0; i < model.size - 1; ++i) {
+        Layer layer = model.layers[i];
+        Layer gradLayer = grad.layers[i];
+        for (size_t row = 0; row < layer.input_weights.rows; ++row) {
+            for (size_t col = 0; col < layer.input_weights.cols; ++col) {
+                MAT_AT(layer.input_weights, row, col) -= rate * MAT_AT(gradLayer.input_weights, row, col);
+            }
+        }
+        for (size_t row = 0; row < layer.input_biases.rows; ++row) {
+            for (size_t col = 0; col < layer.input_biases.cols; ++col) {
+                MAT_AT(layer.input_biases, row, col) -= rate * MAT_AT(gradLayer.input_biases, row, col);
+            }
+        }
+    }
 }

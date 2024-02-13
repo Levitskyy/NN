@@ -36,6 +36,8 @@ void print_model(Model model);
 void model_init_values(Model model, size_t size, const float *init_values);
 float model_cost(Model model, TrainingData data);
 Mat model_output(Model model);
+void finite_diff(Model model, Model grad, float eps, TrainingData data);
+void model_learn(Model model, Model grad, float rate);
 
 
 #endif // NN_H_
