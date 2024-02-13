@@ -23,6 +23,7 @@ void mat_fill(Mat a, float value);
 void mat_mul(Mat dst, float a);
 void mat_add (Mat dst, float a);
 void mat_copy(Mat dst, Mat origin);
+Mat mat_row(Mat mat, size_t row);
 void mat_sigf(Mat mat);
 
 

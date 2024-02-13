@@ -22,6 +22,11 @@ typedef struct {
     Layer* layers;
 } Model;
 
+typedef struct {
+    Mat input;
+    Mat output;
+} TrainingData;
+
 InputLayer inputLayer_alloc(size_t size);
 Layer layer_alloc(size_t size, size_t prev_layer_size);
 Model model_alloc(size_t size, const size_t* sizes);
@@ -29,6 +34,8 @@ void model_random(Model model);
 void model_compute(Model model);
 void print_model(Model model);
 void model_init_values(Model model, size_t size, const float *init_values);
+float model_cost(Model model, TrainingData data);
+Mat model_output(Model model);
 
 
 #endif // NN_H_

@@ -72,3 +72,34 @@ void model_init_values(Model model, size_t size, const float *init_values) {
         MAT_AT(model.inputLayer.values, 0, i) = init_values[i];
     }
 }
+
+Mat model_output(Model model) {
+    Mat res = {
+        .rows = 1,
+        .cols = model.layers[model.size - 2].size,
+        .data = &MAT_AT(model.layers[model.size - 2].values, 0, 0)
+    };
+
+    return res;
+}
+
+float model_cost(Model model, TrainingData data) {
+    assert(model.inputLayer.size == data.input.cols);
+    assert(model.layers[model.size - 2].size == data.output.cols);
+    assert(data.input.rows == data.output.rows);
+
+    float cost = 0;
+    for (size_t i = 0; i < data.input.rows; ++i) {
+        model_init_values(model, data.input.cols, mat_row(data.input, i).data);
+        model_compute(model);
+
+        for (size_t j = 0; j < data.output.cols; ++j) {
+            float d = MAT_AT(model_output(model), 0, j) - MAT_AT(data.output, i, j);
+            printf("%f    %f\n", MAT_AT(data.output, i, j), MAT_AT(model_output(model), 0, j));
+            cost += d * d;
+        }
+        printf("--\n");
+    }
+
+    return cost;
+}

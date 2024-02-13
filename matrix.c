@@ -100,6 +100,16 @@ void mat_copy(Mat dst, Mat origin) {
     }
 }
 
+Mat mat_row(Mat mat, size_t row) {
+    Mat ret = {
+        .rows = 1,
+        .cols = mat.cols,
+        .data = &MAT_AT(mat, row, 0)
+    };
+
+    return ret;
+}
+
 void mat_sigf(Mat mat) {
     for (size_t i = 0; i < mat.rows; ++i) {
         for (size_t j = 0; j < mat.cols; ++j) {
